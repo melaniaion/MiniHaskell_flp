@@ -1,1 +1,1 @@
-# FLP_laborator3
+# MiniHaskell - Fundamentele Limbajelor de Programare
