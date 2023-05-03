@@ -28,7 +28,7 @@ instance MaybeClass Maybe.Maybe where
 -- If the 'MaybeClass' is 'nothing', it returns the default value;
 -- otherwise, it returns the value contained in the 'MaybeClass'.
 fromMaybe :: (MaybeClass m) => a -> m a -> a
-fromMaybe = undefined
+fromMaybe a m = maybe a id m
 
 -- >>> fromMaybe true (just false :: Maybe.Maybe Bool.Bool)
 -- False
@@ -38,34 +38,36 @@ fromMaybe = undefined
 
 -- | The isNothing function returns 'true' iff its argument is 'nothing'.
 isNothing :: (MaybeClass m, BoolClass b) => m a -> b
-isNothing = undefined
+isNothing arg = maybe true (const false) arg
 
 -- >>> isNothing (nothing :: Maybe.Maybe a) :: Bool.Bool
 -- True
 
 -- | The isJust function returns 'true' iff its argument is of the form @'just' _@.
 isJust :: (MaybeClass m, BoolClass b) => m a -> b
-isJust = undefined
+-- isJust = not . isNothing
+--sau 
+isJust = maybe false (const true)
 
 -- >>> isJust (nothing :: Maybe.Maybe a) :: Bool.Bool
 -- False
 
 -- | The 'Functor' instance for 'MaybeClass'
 maybeFMap :: MaybeClass m => (a -> b) -> m a -> m b
-maybeFMap = undefined
+maybeFMap f = maybe nothing (just . f)
 
 -- >>> maybeFMap not (just true) :: Maybe.Maybe Bool.Bool
 -- Just False
 
 -- | The 'Monad' instance for 'MaybeClass'
 maybeBind :: MaybeClass m => (a -> m b) -> m a -> m b
-maybeBind = undefined
+maybeBind = maybe nothing
 
 newtype CMaybe a = CMaybe { getCMaybe :: forall b . b -> (a -> b) -> b }
 
 instance MaybeClass CMaybe where
-  nothing = undefined
-  just x = undefined
+  nothing = CMaybe (\n i -> n)
+  just x = CMaybe (\n j -> j x)
   maybe n j m = getCMaybe m n j
 
 -- >>> fromMaybe true (just false :: CMaybe CBool)
