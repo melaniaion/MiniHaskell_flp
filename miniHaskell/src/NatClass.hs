@@ -25,84 +25,84 @@ instance NatClass Natural.Natural where
   iter f i n = f (iter f i (n `Natural.minusNatural` 1))
 
 one :: NatClass n => n
-one = undefined
+one = succ zero 
 
 -- >>> one :: Natural.Natural
 -- 1
 
 -- | The isZero function returns 'true' iff its argument is 'zero'.
 isZero :: NatClass n => n -> CBool
-isZero = undefined
+isZero n = iter (const false) true n
 
 -- >>> isZero (one :: Natural.Natural)
 -- CFalse
 
 -- | Usual natural numbers addition
 add :: NatClass n => n -> n -> n
-add = undefined
+add m n = iter succ m n 
 
 -- >>> add one one :: Natural.Natural
 -- 2
 
 -- | Usual natural numbers multiplication
 mul :: NatClass n => n -> n -> n
-mul = undefined
+mul m n = iter (add n) zero m 
 
 -- >>> mul one one :: Natural.Natural
 -- 1
 
 -- | Usual natural numbers exponentiation (@exp m n@ is @m ^ n@)
 exp :: NatClass n => n -> n -> n
-exp = undefined
+exp m n = iter (mul n) one m
 
 -- >>> exp (add one one) (add one one) :: Natural.Natural
 -- 4
 
 -- | Predecessor of a natural number ('nothing' for 'zero')
 pred :: NatClass n  => n -> CMaybe n
-pred = undefined
+pred n = iter (just . maybe zero succ) nothing n
 
 -- >>> pred zero :: CMaybe Natural.Natural
 -- CNothing
 
 -- | Difference between natural numbers as a 'MaybeClass' ('nothing' if first is smaller)
 sub :: NatClass n  => n -> n -> CMaybe n
-sub = undefined
+sub m = iter (maybe nothing pred) (just m)
 
 -- >>> sub (exp (add one one) (add one one)) one :: CMaybe Natural.Natural
 -- CJust 3
 
 -- | (Strictly-)Less-Than predicate for natural numbers.
 lt :: NatClass n => n -> n -> CBool 
-lt = undefined
+lt m n = isNothing (sub m n)
 
 -- >>> lt (one :: Natural.Natural) one
 -- CFalse
 
 -- | (Strictly-)Greater-Than predicate for natural numbers.
 gt :: NatClass n => n -> n -> CBool 
-gt = undefined
+gt = flip lt
 
 -- >>> gt (one :: Natural.Natural) one
 -- CFalse
 
 -- | Greater-Than-or-Equal-To predicate for natural numbers.
 gte :: NatClass n => n -> n -> CBool 
-gte = undefined
+gte m n = not (lt m n)
 
 -- >>> gte (zero :: Natural.Natural) zero
 -- CTrue
 
 -- | Less-Than-or-Equal-To predicate for natural numbers.
 lte :: NatClass n => n -> n -> CBool 
-lte = undefined
+lte = flip gte
 
 -- >>> lte (zero :: Natural.Natural) zero
 -- CTrue
 
 -- | Equality predicate for natural numbers.
 eq :: NatClass n => n -> n -> CBool 
-eq = undefined
+eq m n = lte m n && lte n m
 
 -- >>> eq (zero :: Natural.Natural) zero
 -- CTrue
@@ -112,7 +112,7 @@ eq = undefined
 
 -- | Returns the greater between its two arguments
 max :: NatClass n => n -> n -> n
-max = undefined
+max m n = bool m n (lte m n)
 
 -- >>> max (zero :: Natural.Natural) one
 -- 1
